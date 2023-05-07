@@ -1,34 +1,34 @@
 use std::collections::HashMap;
-use crate::general::piece::{Piece, PieceBuilder};
+use crate::general::piece::{Piece, PieceRegistry};
 use crate::general::position::{HorizontalPosition, Position, VerticalPosition};
 
-// Stores every piece currently on the board.
-// Allows to manipulate the positions of pieces on the board without error checking.
+/// Stores every piece currently on the board.
+/// Allows to manipulate the positions of pieces on the board without error checking.
 pub struct Board {
     position_to_piece: HashMap<Position, Piece>,
 }
 
 impl Board {
-    // Returns the piece on a certain position. If there is no position it return None.
+    /// Returns the piece on a certain position. If there is no position it return None.
     pub fn get_piece(&self, position: &Position) -> Option<&Piece> {
         self.position_to_piece.get(position)
     }
 
-    // Moves the piece from a position to another position, only if there is a piece on the initial position.
+    /// Moves the piece from a position to another position, only if there is a piece on the initial position.
     pub fn move_piece(&mut self, from: &Position, to: Position) {
         if let Some(piece) = self.position_to_piece.remove(from) {
             self.position_to_piece.insert(to, piece);
         }
     }
 
-    // Sets a piece on a certain position. Returns the piece that was there before.
+    /// Sets a piece on a certain position. Returns the piece that was there before.
     pub fn set_piece(&mut self, position: Position, piece: Piece) -> Option<Piece> {
         self.position_to_piece.insert(position, piece)
     }
 }
 
 impl Default for Board {
-    // Empty board
+    /// Empty board
     fn default() -> Self {
         Self {
             position_to_piece: Default::default(),
@@ -37,10 +37,10 @@ impl Default for Board {
 }
 
 
-// A simple abstraction to creating a board.
+/// A simple abstraction to creating a board.
 pub struct BoardBuilder;
 impl BoardBuilder {
-    // From FEM String
+    /// From FEM String
     pub fn from_memento(memento: &BoardMemento) -> Board {
         let mut board = Board::default();
 
@@ -57,7 +57,7 @@ impl BoardBuilder {
                 if let Some(count) = symbol.to_digit(10) {
                     current_x += count as usize;
                 } else {
-                    let piece = PieceBuilder::get_from_symbol(&symbol).expect("Error while parsing symbol to piece!");
+                    let piece = PieceRegistry::get_from_symbol(&symbol).expect("Error while parsing symbol to piece!");
                     board.set_piece(Position::new(horizontal_positions[current_x], vertical_positions[current_y]), piece);
                     current_x += 1;
                 }
@@ -77,13 +77,13 @@ impl Default for BoardBuilder {
 }
 
 
-// A storage to store a certain state of a game.
+/// A storage to store a certain state of a game.
 pub struct BoardMemento {
     fen_string: String,
 }
 
 impl BoardMemento {
-    // Generate a FEM string from an existing board
+    /// Generate a FEM string from an existing board
     pub fn from_board(board: &Board) -> Self {
         let mut fen_string = String::new();
 

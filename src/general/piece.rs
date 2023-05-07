@@ -1,11 +1,11 @@
 use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
+use std::sync::RwLock;
 use dyn_clone::DynClone;
 use lazy_static::lazy_static;
 use crate::general::movement::MoveSet;
 
 #[derive(Clone)]
-// A collection of values defining a piece on the board
+/// A composition of the color of the piece and the movable associated with the piece
 pub struct Piece {
     movable: Box<dyn Movable>,
     color: Color,
@@ -28,25 +28,26 @@ pub enum Color {
     Black,
 }
 
-// Any figure in the game
+/// The trait that every figure in the game must implement
 pub trait Movable: DynClone + Send + Sync {
-    // Get the move-sets for the figure
+    /// Gets the move-sets for the figure
     fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>>;
 
-    // Get the symbol for a certain movable
+    /// Gets the symbol for the figure
     fn get_symbol(&self) -> &str;
 }
 dyn_clone::clone_trait_object!(Movable);
 
 lazy_static! {
-    static ref PIECE_BUILDER: RwLock<PieceBuilder> = RwLock::new(PieceBuilder::default());
+    static ref PIECE_BUILDER: RwLock<PieceRegistry> = RwLock::new(PieceRegistry::default());
 }
 
-pub struct PieceBuilder {
+/// Used to register pieces for serialization
+pub struct PieceRegistry {
     symbol_to_piece: HashMap<char, Piece>,
 }
 
-impl Default for PieceBuilder {
+impl Default for PieceRegistry {
     fn default() -> Self {
         Self {
             symbol_to_piece: Default::default(),
@@ -54,8 +55,8 @@ impl Default for PieceBuilder {
     }
 }
 
-impl PieceBuilder {
-    // Register a symbol for serialization. If it already exists, returns None
+impl PieceRegistry {
+    /// Register a symbol mapped to a figure for serialization. If it already exists, returns None
     pub fn register_symbol(symbol: char, piece: Piece) -> Option<()> {
         if PIECE_BUILDER.read().unwrap().symbol_to_piece.contains_key(&symbol) { return None; }
         PIECE_BUILDER.write().unwrap().symbol_to_piece.insert(symbol, piece);
@@ -63,7 +64,7 @@ impl PieceBuilder {
         Some(())
     }
 
-    // Returns a copy of the piece associated with the symbol
+    /// Returns a copy of the piece associated with the passed symbol
     pub fn get_from_symbol(symbol: &char) -> Option<Piece> {
         PIECE_BUILDER.read().unwrap().symbol_to_piece.get(symbol).cloned()
     }
