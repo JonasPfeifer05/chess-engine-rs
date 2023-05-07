@@ -1,7 +1,7 @@
-pub trait MoveSet {
+use dyn_clone::DynClone;
+
+// A descriptor for a movement pattern like horizontal LeftEight or UpOne and so on
+pub trait MoveSet: DynClone {
     fn get_relative_moves(&self) -> Vec<(i8,i8)>;
 }
-
-pub trait Movable {
-    fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>>;
-}
+dyn_clone::clone_trait_object!(MoveSet);
