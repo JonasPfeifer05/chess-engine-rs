@@ -105,7 +105,7 @@ impl BoardMemento {
                 }
 
                 let piece = piece.unwrap();
-                fen_string.push_str(piece.movable().get_symbol());
+                fen_string.push(*piece.movable().get_symbol());
             }
             // If the whole row is empty this is needed
             if empty_count != 0 { fen_string.push_str(&empty_count.to_string()); }
