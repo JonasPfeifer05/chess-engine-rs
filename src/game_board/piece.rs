@@ -19,6 +19,10 @@ impl Piece {
     pub fn color(&self) -> &Color {
         &self.color
     }
+
+    pub fn new(movable: Box<dyn Movable>, color: Color) -> Self {
+        Self { movable, color }
+    }
 }
 
 #[repr(u8)]

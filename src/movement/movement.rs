@@ -2,6 +2,7 @@ use dyn_clone::DynClone;
 use crate::game_board::piece::Color;
 use crate::game_state::game_state::{GameState, State};
 
+#[derive(Debug)]
 pub struct Move {
     relative_move: (i8, i8),
     can_kill: bool,
@@ -21,6 +22,20 @@ impl Move {
 
     pub fn new_detailed(relative_move: (i8, i8), can_kill: bool, only_with_kill: bool, check_in_way: bool) -> Self {
         Self { relative_move, can_kill, only_with_kill, check_in_way }
+    }
+
+
+    pub fn relative_move(&self) -> (i8, i8) {
+        self.relative_move
+    }
+    pub fn can_kill(&self) -> bool {
+        self.can_kill
+    }
+    pub fn only_with_kill(&self) -> bool {
+        self.only_with_kill
+    }
+    pub fn check_in_way(&self) -> bool {
+        self.check_in_way
     }
 }
 
@@ -68,7 +83,7 @@ pub struct HorizontalEightLeft;
 impl MoveSet for HorizontalEightLeft {
     fn get_relative_moves(&self) -> Vec<Move> {
         let mut moves = Vec::new();
-        for i in 0..8 {
+        for i in 1..8 {
             moves.push(Move::new_basic((-i,0)));
         }
         moves
@@ -80,7 +95,7 @@ pub struct HorizontalEightRight;
 impl MoveSet for HorizontalEightRight {
     fn get_relative_moves(&self) -> Vec<Move> {
         let mut moves = Vec::new();
-        for i in 0..8 {
+        for i in 1..8 {
             moves.push(Move::new_basic((i,0)));
         }
         moves
@@ -92,7 +107,7 @@ pub struct VerticalEightUp;
 impl MoveSet for VerticalEightUp {
     fn get_relative_moves(&self) -> Vec<Move> {
         let mut moves = Vec::new();
-        for i in 0..8 {
+        for i in 1..8 {
             moves.push(Move::new_basic((0,-i)));
         }
         moves
@@ -104,7 +119,7 @@ pub struct VerticalEightBottom;
 impl MoveSet for VerticalEightBottom {
     fn get_relative_moves(&self) -> Vec<Move> {
         let mut moves = Vec::new();
-        for i in 0..8 {
+        for i in 1..8 {
             moves.push(Move::new_basic((0,i)));
         }
         moves
@@ -148,7 +163,7 @@ pub struct DiagonalEightTopLeft;
 impl MoveSet for DiagonalEightTopLeft {
     fn get_relative_moves(&self) -> Vec<Move> {
         let mut moves = Vec::new();
-        for i in 0..8 {
+        for i in 1..8 {
             moves.push(Move::new_basic((-i,-i)))
         }
         moves
@@ -160,7 +175,7 @@ pub struct DiagonalEightTopRight;
 impl MoveSet for DiagonalEightTopRight {
     fn get_relative_moves(&self) -> Vec<Move> {
         let mut moves = Vec::new();
-        for i in 0..8 {
+        for i in 1..8 {
             moves.push(Move::new_basic((i,-i)))
         }
         moves
@@ -172,7 +187,7 @@ pub struct DiagonalEightBottomLeft;
 impl MoveSet for DiagonalEightBottomLeft {
     fn get_relative_moves(&self) -> Vec<Move> {
         let mut moves = Vec::new();
-        for i in 0..8 {
+        for i in 1..8 {
             moves.push(Move::new_basic((-i,i)))
         }
         moves
@@ -184,7 +199,7 @@ pub struct DiagonalEightBottomRight;
 impl MoveSet for DiagonalEightBottomRight {
     fn get_relative_moves(&self) -> Vec<Move> {
         let mut moves = Vec::new();
-        for i in 0..8 {
+        for i in 1..8 {
             moves.push(Move::new_basic((i,i)))
         }
         moves

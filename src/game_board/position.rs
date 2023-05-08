@@ -1,5 +1,5 @@
 use std::fmt::{Debug, Formatter};
-use crate::game_board::position::HorizontalPosition::{A, B, C, D, E, F, G};
+use crate::game_board::position::HorizontalPosition::{A, B, C, D, E, F, G, H};
 use crate::game_board::position::VerticalPosition::{Eight, Five, Four, One, Seven, Six, Three, Two};
 
 /// Given a chess board, VerticalPosition defines the vertical alignment of anything on that board. \
@@ -20,20 +20,38 @@ use crate::game_board::position::VerticalPosition::{Eight, Five, Four, One, Seve
 #[repr(u8)]
 #[derive(Eq, PartialEq, Hash, Debug, Copy, Clone)]
 pub enum VerticalPosition {
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
-    Eight,
+    One = 0,
+    Two = 1,
+    Three = 2,
+    Four = 3,
+    Five = 4,
+    Six = 5,
+    Seven = 6,
+    Eight = 7,
 }
 
 impl VerticalPosition {
     /// Returns a list of every vertical position of a chess engine
     pub fn get_list() -> Vec<VerticalPosition> {
         vec![One, Two, Three, Four, Five, Six, Seven, Eight]
+    }
+}
+
+impl TryFrom<u8> for VerticalPosition {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        return match value {
+            0 => { Ok(One) }
+            1 => { Ok(Two) }
+            2 => { Ok(Three) }
+            3 => { Ok(Four) }
+            4 => { Ok(Five) }
+            5 => { Ok(Six) }
+            6 => { Ok(Seven) }
+            7 => { Ok(Eight) }
+            _ => { Err(()) }
+        }
     }
 }
 
@@ -56,14 +74,32 @@ impl VerticalPosition {
 #[repr(u8)]
 #[derive(Eq, PartialEq, Hash, Debug, Copy, Clone)]
 pub enum HorizontalPosition {
-    A,
-    B,
-    C,
-    D,
-    E,
-    F,
-    G,
-    H,
+    A = 0,
+    B = 1,
+    C = 2,
+    D = 3,
+    E = 4,
+    F = 5,
+    G = 6,
+    H = 7,
+}
+
+impl TryFrom<u8> for HorizontalPosition {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        return match value {
+            0 => { Ok(A) }
+            1 => { Ok(B) }
+            2 => { Ok(C) }
+            3 => { Ok(D) }
+            4 => { Ok(E) }
+            5 => { Ok(F) }
+            6 => { Ok(G) }
+            7 => { Ok(H) }
+            _ => { Err(()) }
+        }
+    }
 }
 
 impl HorizontalPosition {
@@ -108,6 +144,7 @@ impl Debug for Position {
 
 /// Used to build an position from certain data
 pub struct PositionBuilder;
+
 impl PositionBuilder {
     /// Used to clone a position \
     /// \
