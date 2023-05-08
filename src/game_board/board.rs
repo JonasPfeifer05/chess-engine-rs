@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use crate::general::piece::{Piece, PieceRegistry};
-use crate::general::position::{HorizontalPosition, Position, VerticalPosition};
+use crate::game_board::piece::{Piece, PieceRegistry};
+use crate::game_board::position::{HorizontalPosition, Position, VerticalPosition};
 
 /// Stores every piece currently on the board.
 /// Allows to manipulate the positions of pieces on the board without error checking.

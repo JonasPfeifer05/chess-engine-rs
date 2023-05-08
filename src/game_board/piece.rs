@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::RwLock;
 use dyn_clone::DynClone;
 use lazy_static::lazy_static;
-use crate::general::movement::MoveSet;
+use crate::game_board::movement::MoveSet;
 
 #[derive(Clone)]
 /// A composition of the color of the piece and the movable associated with the piece

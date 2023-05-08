@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Formatter};
-use crate::general::position::HorizontalPosition::{A, B, C, D, E, F, G};
-use crate::general::position::VerticalPosition::{Eight, Five, Four, One, Seven, Six, Three, Two};
+use crate::game_board::position::HorizontalPosition::{A, B, C, D, E, F, G};
+use crate::game_board::position::VerticalPosition::{Eight, Five, Four, One, Seven, Six, Three, Two};
 
 /// Given a chess board, VerticalPosition defines the vertical alignment of anything on that board. \
 ///  \
@@ -113,6 +113,7 @@ impl PositionBuilder {
     /// \
     /// # Example
     /// ```
+    /// use chess_engine_rs::game_board::position::{HorizontalPosition, Position, PositionBuilder, VerticalPosition};
     /// use chess_engine_rs::general::position::{HorizontalPosition, Position, PositionBuilder, VerticalPosition};
     /// let position1 = Position::new(HorizontalPosition::A, VerticalPosition::One);
     /// let position2 = PositionBuilder::clone(&position1);
