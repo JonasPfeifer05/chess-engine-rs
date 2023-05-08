@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::RwLock;
 use dyn_clone::DynClone;
 use lazy_static::lazy_static;
-use crate::game_board::movement::{DiagonalEight, DiagonalOne, HorizontalEight, HorizontalOne, KnightMove, MoveSet, PawnOne, PawnTwo, VerticalEight, VerticalOne};
+use crate::game_board::movement::{DiagonalEight, DiagonalOne, HorizontalEight, HorizontalOne, KnightMove, MoveSet, PawnKill, PawnOne, PawnTwo, VerticalEight, VerticalOne};
 
 #[derive(Clone)]
 /// A composition of the color of the piece and the movable associated with the piece
@@ -101,9 +101,9 @@ pub struct Knight;
 impl Movable for Pawn {
     fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>> {
         if self.already_moved {
-            vec![Box::new(PawnOne)]
+            vec![Box::new(PawnOne), Box::new(PawnKill)]
         } else {
-            vec![Box::new(PawnOne), Box::new(PawnTwo)]
+            vec![Box::new(PawnOne), Box::new(PawnTwo), Box::new(PawnKill)]
         }
     }
 
