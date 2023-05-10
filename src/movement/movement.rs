@@ -2,9 +2,9 @@ use dyn_clone::DynClone;
 use crate::game_board::piece::Color;
 use crate::game_state::game_state::{GameState, State};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Move {
-    relative_move: (i8, i8),
+    pub relative_move: (i8, i8),
     can_kill: bool,
     only_with_kill: bool,
     check_in_way: bool,
@@ -249,9 +249,9 @@ pub struct PawnOne;
 impl MoveSet for PawnOne {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
         if color == &Color::White {
-            vec![Move::new_detailed((0, 1), false, false, true)]
-        } else {
             vec![Move::new_detailed((0, -1), false, false, true)]
+        } else {
+            vec![Move::new_detailed((0, 1), false, false, true)]
         }
     }
 }
@@ -262,9 +262,9 @@ pub struct PawnTwo;
 impl MoveSet for PawnTwo {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
         if color == &Color::White {
-            vec![Move::new_detailed((0, 2), false, false, true)]
-        } else {
             vec![Move::new_detailed((0, -2), false, false, true)]
+        } else {
+            vec![Move::new_detailed((0, 2), false, false, true)]
         }
     }
 }
@@ -275,9 +275,9 @@ pub struct PawnKill;
 impl MoveSet for PawnKill {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
         if color == &Color::White {
-            vec![Move::new_detailed((1, 1), true, true, true), Move::new_detailed((-1, 1), true, true, true)]
-        } else {
             vec![Move::new_detailed((1, -1), true, true, true), Move::new_detailed((-1, -1), true, true, true)]
+        } else {
+            vec![Move::new_detailed((1, 1), true, true, true), Move::new_detailed((-1, 1), true, true, true)]
         }
     }
 }

@@ -105,7 +105,7 @@ impl TryFrom<u8> for HorizontalPosition {
 impl HorizontalPosition {
     /// Returns a list of every horizontal position of a chess engine
     pub fn get_list() -> Vec<HorizontalPosition> {
-        vec![A, B, C, D, E, F, G]
+        vec![A, B, C, D, E, F, G, H]
     }
 }
 
