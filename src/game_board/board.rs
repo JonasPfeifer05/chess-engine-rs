@@ -58,7 +58,7 @@ impl BoardBuilder {
                     current_x += count as usize;
                 } else {
                     let mut piece = PieceRegistry::get_from_symbol(&symbol.to_ascii_lowercase()).expect("Error while parsing symbol to piece!");
-                    if symbol.is_uppercase() { piece.set_color(Color::Black) }
+                    if symbol.is_uppercase() { piece.set_color(Color::White) }
                     board.set_piece(Position::new(horizontal_positions[current_x], vertical_positions[current_y]), piece);
                     current_x += 1;
                 }
