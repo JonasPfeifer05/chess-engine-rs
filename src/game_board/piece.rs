@@ -28,7 +28,7 @@ impl Piece {
 }
 
 #[repr(u8)]
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub enum Color {
     White,
     Black,

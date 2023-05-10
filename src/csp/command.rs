@@ -1,6 +1,7 @@
 use crate::game_board::piece::Color;
 use crate::game_board::position::Position;
 
+#[derive(Debug)]
 pub enum ClientCommand {
     Join { code: String },
     Leave,
