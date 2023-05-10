@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::game_board::piece::{Piece, PieceRegistry};
+use crate::game_board::piece::{Color, Piece, PieceRegistry};
 use crate::game_board::position::{HorizontalPosition, Position, VerticalPosition};
 
 /// Stores every piece currently on the board.
@@ -57,7 +57,8 @@ impl BoardBuilder {
                 if let Some(count) = symbol.to_digit(10) {
                     current_x += count as usize;
                 } else {
-                    let piece = PieceRegistry::get_from_symbol(&symbol).expect("Error while parsing symbol to piece!");
+                    let mut piece = PieceRegistry::get_from_symbol(&symbol.to_ascii_lowercase()).expect("Error while parsing symbol to piece!");
+                    if symbol.is_uppercase() { piece.set_color(Color::Black) }
                     board.set_piece(Position::new(horizontal_positions[current_x], vertical_positions[current_y]), piece);
                     current_x += 1;
                 }

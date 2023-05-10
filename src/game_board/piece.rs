@@ -20,6 +20,8 @@ impl Piece {
         &self.color
     }
 
+    pub fn set_color(&mut self, color: Color) { self.color = color; }
+
     pub fn new(movable: Box<dyn Movable>, color: Color) -> Self {
         Self { movable, color }
     }
