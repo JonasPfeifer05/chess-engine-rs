@@ -1,2 +1,2 @@
 pub mod movement;
-pub mod evaluater;
+pub mod evaluator;

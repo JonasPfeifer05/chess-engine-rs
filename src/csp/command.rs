@@ -1,23 +1,20 @@
 use crate::game_board::piece::Color;
+use crate::game_board::position::Position;
 
-pub enum CSPCommand {
-    // Server Responses
-    Ok,
-    Error,
-
-    // Authorization
-    Id { name: String },
-    Leave { name: String },
-
-    // Configuration
+pub enum ClientCommand {
+    Join { code: String },
+    Leave,
     New { fen: String },
-    CancelNew,
-
-    // Requests
-    GetMoves { position: (u8,u8) },
     Killed { color: Color },
     Fen,
+    Move { from: Position, to: Position }
+}
 
-    // Executive
-    Move { from: (u8,u8), to: (u8,u8) }
+pub enum ServerCommand {
+    OkColor { color: Color },
+    OkCode { code: String },
+    OkPieceList { symbols: Vec<char> },
+    OkFen { fen: String },
+    Ok,
+    Error { message: String }
 }

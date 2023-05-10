@@ -15,10 +15,6 @@ pub enum Result {
     Stalemate
 }
 
-lazy_static! {
-    static ref GAME_STATE: RwLock<GameState> = RwLock::new(GameState::new());
-}
-
 pub struct GameState {
     pub current_state: State,
 }
@@ -28,8 +24,7 @@ impl GameState {
         Self { current_state: State::Setup }
     }
 
-
-    pub fn state() -> State {
-       GAME_STATE.read().unwrap().current_state.clone()
+    pub fn state(&self) -> State {
+       self.current_state.clone()
     }
 }
