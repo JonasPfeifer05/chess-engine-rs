@@ -5,10 +5,20 @@ use std::net::TcpStream;
 use rand::Rng;
 use crate::application::Application;
 use crate::game_board::piece::Color;
+use crate::game_board::piece::Color::{Black, White};
 
 pub struct ApplicationMap<'a> {
     code_to_application: HashMap<String, Application>,
     code_to_players: HashMap<String, Vec<(&'a TcpStream, Color)>>,
+}
+
+impl<'a> Default for ApplicationMap<'a> {
+    fn default() -> Self {
+        Self {
+            code_to_players: Default::default(),
+            code_to_application: Default::default(),
+        }
+    }
 }
 
 impl<'a> ApplicationMap<'a> {
@@ -16,11 +26,16 @@ impl<'a> ApplicationMap<'a> {
         let random = hex::encode(&rand::thread_rng().gen::<[u8; 16]>());
 
         self.code_to_application.insert(random.clone(), Application::default());
+        self.code_to_players.insert(random.clone(), Vec::new());
 
         Ok(random)
     }
 
-    pub fn add_user(&mut self, code: String, user: &'a TcpStream) -> Result<(), String> {
+    pub fn get_application(&mut self, code: String) -> Option<&mut Application> {
+        self.code_to_application.get_mut(&code)
+    }
+
+    pub fn add_user(&mut self, code: String, user: &'a TcpStream) -> Result<Color, String> {
         if !self.code_to_application.contains_key(&code) {
             return Err("No such game!".to_string());
         }
@@ -34,18 +49,21 @@ impl<'a> ApplicationMap<'a> {
 
             if users.len() == 0 {
                 users.push((user, Color::White));
+                return Ok(White)
             } else {
                 match users.get(0).unwrap().1 {
                     Color::White => {
                         users.push((user, Color::Black));
+                        return Ok(Black);
                     }
                     Color::Black => {
                         users.push((user, Color::White));
+                        return Ok(White);
                     }
                 }
             }
+        } else {
+            return Err("Internal Server Error!".to_string())
         }
-
-        Ok(())
     }
 }
