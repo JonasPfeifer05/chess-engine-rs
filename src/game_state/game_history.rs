@@ -1,5 +1,6 @@
 use crate::game_board::position::Position;
 
+#[derive(Debug)]
 pub struct GameHistory {
     played_moves: Vec<(Position, Position)>,
 }

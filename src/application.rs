@@ -1,9 +1,11 @@
+use crate::csp::command::{ClientCommand, ServerCommand};
 use crate::game_board::board::{Board, BoardMemento};
 use crate::game_board::position::Position;
 use crate::game_state::game_history::GameHistory;
 use crate::game_state::game_state::{GameState, State};
 use crate::movement::evaluator::MoveEvaluator;
 
+#[derive(Debug)]
 pub struct Application {
     board: Board,
     history: GameHistory,

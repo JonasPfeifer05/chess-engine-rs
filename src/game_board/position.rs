@@ -124,7 +124,7 @@ impl HorizontalPosition {
 ///   A B C D E F G H \
 /// \
 /// Position of P would be { horizontal: F; vertical: Five; }
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Eq, PartialEq, Clone, Hash)]
 pub struct Position {
     pub vertical: VerticalPosition,
     pub horizontal: HorizontalPosition,

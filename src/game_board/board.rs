@@ -5,6 +5,7 @@ use crate::game_board::position::{HorizontalPosition, Position, VerticalPosition
 
 /// Stores every piece currently on the board.
 /// Allows to manipulate the positions of pieces on the board without error checking.
+#[derive(Clone)]
 pub struct Board {
     position_to_piece: HashMap<Position, Piece>,
 }

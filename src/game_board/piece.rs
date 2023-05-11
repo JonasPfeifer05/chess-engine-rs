@@ -1,7 +1,9 @@
 use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
 use std::sync::RwLock;
 use dyn_clone::DynClone;
 use lazy_static::lazy_static;
+use crate::game_board::position::Position;
 use crate::movement::movement::{DiagonalEightBottomLeft, DiagonalEightBottomRight, DiagonalEightTopLeft, DiagonalEightTopRight, DiagonalOneBottomLeft, DiagonalOneBottomRight, DiagonalOneTopLeft, DiagonalOneTopRight, HorizontalEightLeft, HorizontalEightRight, HorizontalOneLeft, HorizontalOneRight, KnightMove, MoveSet, PawnKill, PawnOne, PawnTwo, VerticalEightBottom, VerticalEightUp, VerticalOneBottom, VerticalOneUp};
 
 #[derive(Clone)]
@@ -9,6 +11,14 @@ use crate::movement::movement::{DiagonalEightBottomLeft, DiagonalEightBottomRigh
 pub struct Piece {
     movable: Box<dyn Movable>,
     color: Color,
+}
+
+impl Debug for Piece {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.movable.get_symbol().to_string().as_str()).expect("TODO: panic message");
+        f.write_str(", ").expect("TODO: panic message");
+        f.write_str(&format!("{:?}", self.color))
+    }
 }
 
 impl Piece {
