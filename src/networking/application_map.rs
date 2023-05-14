@@ -4,16 +4,16 @@ use std::iter::Map;
 use std::net::{SocketAddr, TcpStream};
 use std::thread::Scope;
 use rand::Rng;
-use crate::application::Application;
+use crate::application::Game;
 use crate::game_board::piece::Color;
 use crate::game_board::piece::Color::{Black, White};
 
-pub struct ApplicationMap {
-    code_to_application: HashMap<String, Application>,
+pub struct GameMap {
+    code_to_application: HashMap<String, Game>,
     code_to_players: HashMap<String, Vec<(SocketAddr, Color)>>,
 }
 
-impl Default for ApplicationMap {
+impl Default for GameMap {
     fn default() -> Self {
         Self {
             code_to_players: Default::default(),
@@ -22,7 +22,7 @@ impl Default for ApplicationMap {
     }
 }
 
-impl ApplicationMap {
+impl GameMap {
     pub fn get_code_to_user(&self, peer: &SocketAddr) -> Result<String, String> {
         for entries in self.code_to_players.iter() {
             for user in entries.1 {
@@ -41,13 +41,13 @@ impl ApplicationMap {
     pub fn new_game(&mut self) -> Result<String, String> {
         let random = hex::encode(&rand::thread_rng().gen::<[u8; 16]>());
 
-        self.code_to_application.insert(random.clone(), Application::default());
+        self.code_to_application.insert(random.clone(), Game::default());
         self.code_to_players.insert(random.clone(), Vec::new());
 
         Ok(random)
     }
 
-    pub fn get_application(&mut self, code: &str) -> Option<&mut Application> {
+    pub fn get_application(&mut self, code: &str) -> Option<&mut Game> {
         self.code_to_application.get_mut(code)
     }
 

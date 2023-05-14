@@ -3,7 +3,6 @@ use std::fmt::{Debug, Formatter};
 use std::sync::RwLock;
 use dyn_clone::DynClone;
 use lazy_static::lazy_static;
-use crate::game_board::position::Position;
 use crate::movement::movement::{DiagonalEightBottomLeft, DiagonalEightBottomRight, DiagonalEightTopLeft, DiagonalEightTopRight, DiagonalOneBottomLeft, DiagonalOneBottomRight, DiagonalOneTopLeft, DiagonalOneTopRight, HorizontalEightLeft, HorizontalEightRight, HorizontalOneLeft, HorizontalOneRight, KnightMove, MoveSet, PawnKill, PawnOne, PawnTwo, VerticalEightBottom, VerticalEightUp, VerticalOneBottom, VerticalOneUp};
 
 #[derive(Clone)]
@@ -30,7 +29,7 @@ impl Piece {
         &self.color
     }
 
-    pub fn set_color(&mut self, color: Color) { self.color = color; }
+    pub(crate) fn set_color(&mut self, color: Color) { self.color = color; }
 
     pub fn new(movable: Box<dyn Movable>, color: Color) -> Self {
         Self { movable, color }
@@ -50,7 +49,8 @@ pub trait Movable: DynClone + Send + Sync {
     fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>>;
 
     /// Gets the symbol for the figure
-    fn get_symbol(&self) -> &char;
+    fn get_symbol(&self) -> char;
+    fn get_ascii(&self, color: &Color) -> char;
 
     fn moved(&mut self) {}
 }
@@ -60,6 +60,8 @@ lazy_static! {
     static ref PIECE_BUILDER: RwLock<PieceRegistry> = RwLock::new(PieceRegistry::default());
 }
 
+pub const UPPER_CASE_IS_WHITE: bool = true;
+
 /// Used to register pieces for serialization
 pub struct PieceRegistry {
     symbol_to_piece: HashMap<char, Piece>,
@@ -67,24 +69,32 @@ pub struct PieceRegistry {
 
 impl Default for PieceRegistry {
     fn default() -> Self {
+        let mut map: HashMap<char, Piece> = Default::default();
+
+        map.insert('p', Piece::new(Box::new(Pawn::default()), Color::Black));
+        map.insert('r', Piece::new(Box::new(Rook), Color::Black));
+        map.insert('n', Piece::new(Box::new(Knight), Color::Black));
+        map.insert('b', Piece::new(Box::new(Bishop), Color::Black));
+        map.insert('q', Piece::new(Box::new(Queen), Color::Black));
+        map.insert('k', Piece::new(Box::new(King), Color::Black));
+
         Self {
-            symbol_to_piece: Default::default(),
+            symbol_to_piece: map,
         }
     }
 }
 
 impl PieceRegistry {
-    /// Register a symbol mapped to a figure for serialization. If it already exists, returns None
-    pub fn register_symbol(symbol: char, piece: Piece) -> Option<()> {
-        if PIECE_BUILDER.read().unwrap().symbol_to_piece.contains_key(&symbol) { return None; }
-        PIECE_BUILDER.write().unwrap().symbol_to_piece.insert(symbol, piece);
-
-        Some(())
-    }
-
     /// Returns a copy of the piece associated with the passed symbol
-    pub fn get_from_symbol(symbol: &char) -> Option<Piece> {
-        PIECE_BUILDER.read().unwrap().symbol_to_piece.get(symbol).cloned()
+    pub fn get(symbol: &char) -> Option<Piece> {
+        let lowercase: char = symbol.to_lowercase().next().unwrap();
+        let piece = PIECE_BUILDER.read().unwrap().symbol_to_piece.get(&lowercase).cloned();
+        piece.map(|mut piece| {
+            if symbol.is_uppercase() && UPPER_CASE_IS_WHITE {
+                piece.set_color(Color::White);
+            }
+            piece
+        })
     }
 }
 
@@ -99,19 +109,19 @@ impl Default for Pawn {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Rook;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct King;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Queen;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Bishop;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Knight;
 
 impl Movable for Pawn {
@@ -123,8 +133,15 @@ impl Movable for Pawn {
         }
     }
 
-    fn get_symbol(&self) -> &char {
-        &'p'
+    fn get_symbol(&self) -> char {
+        'p'
+    }
+
+    fn get_ascii(&self, color: &Color) -> char {
+        match color {
+            Color::White => { '\u{265F}' }
+            Color::Black => { '\u{2659}' }
+        }
     }
 
     fn moved(&mut self) {
@@ -137,18 +154,32 @@ impl Movable for Rook {
         vec![Box::new(HorizontalEightLeft), Box::new(HorizontalEightRight), Box::new(VerticalEightUp), Box::new(VerticalEightBottom)]
     }
 
-    fn get_symbol(&self) -> &char {
-        &'r'
+    fn get_symbol(&self) -> char {
+        'r'
+    }
+
+    fn get_ascii(&self, color: &Color) -> char {
+        match color {
+            Color::White => { '\u{265C}' }
+            Color::Black => { '\u{2656}' }
+        }
     }
 }
 
 impl Movable for King {
     fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>> {
-        vec![Box::new(DiagonalOneTopLeft),Box::new(DiagonalOneTopRight),Box::new(DiagonalOneBottomLeft),Box::new(DiagonalOneBottomRight), Box::new(VerticalOneUp),Box::new(VerticalOneBottom), Box::new(HorizontalOneLeft),Box::new(HorizontalOneRight)]
+        vec![Box::new(DiagonalOneTopLeft), Box::new(DiagonalOneTopRight), Box::new(DiagonalOneBottomLeft), Box::new(DiagonalOneBottomRight), Box::new(VerticalOneUp), Box::new(VerticalOneBottom), Box::new(HorizontalOneLeft), Box::new(HorizontalOneRight)]
     }
 
-    fn get_symbol(&self) -> &char {
-        &'k'
+    fn get_symbol(&self) -> char {
+        'k'
+    }
+
+    fn get_ascii(&self, color: &Color) -> char {
+        match color {
+            Color::White => { '\u{265A}' }
+            Color::Black => { '\u{2654}' }
+        }
     }
 }
 
@@ -157,18 +188,32 @@ impl Movable for Queen {
         vec![Box::new(DiagonalEightTopLeft), Box::new(DiagonalEightTopRight), Box::new(DiagonalEightBottomLeft), Box::new(DiagonalEightBottomRight), Box::new(VerticalEightUp), Box::new(VerticalEightBottom), Box::new(HorizontalEightLeft), Box::new(HorizontalEightRight)]
     }
 
-    fn get_symbol(&self) -> &char {
-        &'q'
+    fn get_symbol(&self) -> char {
+        'q'
+    }
+
+    fn get_ascii(&self, color: &Color) -> char {
+        match color {
+            Color::White => { '\u{265B}' }
+            Color::Black => { '\u{2655}' }
+        }
     }
 }
 
 impl Movable for Bishop {
     fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>> {
-        vec![Box::new(DiagonalEightTopLeft),Box::new(DiagonalEightTopRight),Box::new(DiagonalEightBottomLeft),Box::new(DiagonalEightBottomRight)]
+        vec![Box::new(DiagonalEightTopLeft), Box::new(DiagonalEightTopRight), Box::new(DiagonalEightBottomLeft), Box::new(DiagonalEightBottomRight)]
     }
 
-    fn get_symbol(&self) -> &char {
-        &'b'
+    fn get_symbol(&self) -> char {
+        'b'
+    }
+
+    fn get_ascii(&self, color: &Color) -> char {
+        match color {
+            Color::White => { '\u{265D}' }
+            Color::Black => { '\u{2657}' }
+        }
     }
 }
 
@@ -177,7 +222,14 @@ impl Movable for Knight {
         vec![Box::new(KnightMove)]
     }
 
-    fn get_symbol(&self) -> &char {
-        &'k'
+    fn get_symbol(&self) -> char {
+        'k'
+    }
+
+    fn get_ascii(&self, color: &Color) -> char {
+        match color {
+            Color::White => { '\u{265A}' }
+            Color::Black => { '\u{2654}' }
+        }
     }
 }

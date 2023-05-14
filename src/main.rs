@@ -8,7 +8,7 @@ use chess_engine_rs::csp::command::{ClientCommand, ServerCommand};
 use chess_engine_rs::csp::csp_parser::CSPParser;
 use chess_engine_rs::game_board::piece::{Bishop, King, Knight, Pawn, Piece, PieceRegistry, Queen, Rook};
 use chess_engine_rs::game_board::piece::Color::Black;
-use chess_engine_rs::networking::application_map::ApplicationMap;
+use chess_engine_rs::networking::application_map::GameMap;
 
 fn handle_client(mut stream: TcpStream, request_tx: Sender<(Sender<ServerCommand>, (ClientCommand, SocketAddr))>) {
     let (tx, rx) = channel();
@@ -52,13 +52,6 @@ fn handle_client(mut stream: TcpStream, request_tx: Sender<(Sender<ServerCommand
 }
 
 fn main() {
-    PieceRegistry::register_symbol('p', Piece::new(Box::new(Pawn::default()), Black));
-    PieceRegistry::register_symbol('r', Piece::new(Box::new(Rook), Black));
-    PieceRegistry::register_symbol('n', Piece::new(Box::new(Knight), Black));
-    PieceRegistry::register_symbol('b', Piece::new(Box::new(Bishop), Black));
-    PieceRegistry::register_symbol('q', Piece::new(Box::new(Queen), Black));
-    PieceRegistry::register_symbol('k', Piece::new(Box::new(King), Black));
-
     let (tx, rx) = channel();
 
     let _listener_handle = thread::spawn(move || {
@@ -72,7 +65,7 @@ fn main() {
         }
     });
 
-    let mut application_map = ApplicationMap::default();
+    let mut application_map = GameMap::default();
 
     loop {
         let (tx, (command, peer)) = rx.recv().unwrap();

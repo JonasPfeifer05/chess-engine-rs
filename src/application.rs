@@ -6,15 +6,15 @@ use crate::game_state::game_state::{GameState, State};
 use crate::movement::evaluator::MoveEvaluator;
 
 #[derive(Debug)]
-pub struct Application {
+pub struct Game {
     board: Board,
     history: GameHistory,
     pub state: GameState,
 }
 
-impl Default for Application {
+impl Default for Game {
     fn default() -> Self {
-        Application {
+        Game {
             board: Board::default(),
             history: Default::default(),
             state: GameState::new(),
@@ -22,7 +22,7 @@ impl Default for Application {
     }
 }
 
-impl Application {
+impl Game {
     pub fn load_fen(&mut self, fen: &str) -> Result<(),String> {
         self.board = BoardBuilder::from_memento(&BoardMemento::new(fen.to_string()))?;
 

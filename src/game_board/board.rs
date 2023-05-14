@@ -49,30 +49,7 @@ impl Debug for Board {
         for y in 0..8 {
             for x in 0..8 {
                 if let Some(piece) = self.position_to_piece.get(&Position::new(x,y).unwrap()) {
-                    let symbol = match piece.color() {
-                        Color::White => {
-                            match piece.movable().get_symbol() {
-                                'p' => '\u{265F}',
-                                'r' => '\u{265C}',
-                                'n' => '\u{265E}',
-                                'b' => '\u{265D}',
-                                'q' => '\u{265B}',
-                                'k' => '\u{265A}',
-                                &_ => {' '}
-                            }
-                        }
-                        Color::Black => {
-                            match piece.movable().get_symbol() {
-                                'p' => '\u{2659}',
-                                'r' => '\u{2656}',
-                                'n' => '\u{2658}',
-                                'b' => '\u{2657}',
-                                'q' => '\u{2655}',
-                                'k' => '\u{2654}',
-                                &_ => {' '}
-                            }
-                        }
-                    };
+                    let symbol = piece.movable().get_ascii(piece.color());
                     board.push_str(&format!("{symbol}"));
                 } else {
                     board.push_str(&format!("{} ", "\u{00B7}"))
@@ -107,7 +84,7 @@ impl BoardBuilder {
                 if let Some(count) = symbol.to_digit(10) {
                     current_x += count as u8;
                 } else {
-                    let mut piece = PieceRegistry::get_from_symbol(&symbol.to_ascii_lowercase()).expect("Error while parsing symbol to piece!");
+                    let mut piece = PieceRegistry::get(&symbol.to_ascii_lowercase()).expect("Error while parsing symbol to piece!");
                     if symbol.is_uppercase() { piece.set_color(Color::White) }
                     board.set_piece(Position::new(current_x, current_y as u8).unwrap(), piece);
                 }
@@ -148,7 +125,7 @@ impl BoardMemento {
                 }
 
                 let piece = piece.unwrap();
-                fen_string.push(*piece.movable().get_symbol());
+                fen_string.push(piece.movable().get_symbol());
             }
             // If the whole row is empty this is needed
             if empty_count != 0 { fen_string.push_str(&empty_count.to_string()); }
