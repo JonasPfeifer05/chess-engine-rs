@@ -6,67 +6,69 @@ use crate::game_board::position::{HorizontalPosition, Position, VerticalPosition
 pub struct CSPParser;
 
 impl CSPParser {
-    pub fn parse_client_command(command: &str) -> Option<ClientCommand> {
+    pub fn parse_client_command(command: &str) -> Result<ClientCommand, String> {
         let parts: Vec<_> = command.trim().split(" ").map(|x| x.to_lowercase()).collect();
-        if parts.len() == 0 { return None; }
+        if parts.len() == 0 { return Err("No command passed".to_string()); }
 
         match parts.first().unwrap().as_str() {
             "join" => {
-                if parts.len() < 2 { return None; }
-                Some(Join { code: parts.get(1).unwrap().clone(), peer: None })
+                if parts.len() < 2 { return Err("Not enough arguments passed for join".to_string()); }
+                Ok(Join { code: parts.get(1).unwrap().clone() })
             }
-            "leave" => { Some(Leave { peer: None }) }
+            "leave" => { Ok(Leave) }
             "new" => {
-                if parts.len() < 2 { return None; }
-                Some(New { fen: parts.get(1).unwrap().clone() })
+                if parts.len() < 2 { return Err("Not enough arguments passed for new".to_string()); }
+                Ok(New { fen: parts.get(1).unwrap().clone() })
             }
             "killed" => {
-                if parts.len() < 2 { return None; }
-                Some(Killed {
+                if parts.len() < 2 { return Err("Not enough parts passed for killed".to_string()); }
+                Ok(Killed {
                     color: match parts.get(1).unwrap().to_lowercase().as_str() {
                         "white" => { Color::White }
                         "black" => { Color::Black }
-                        &_ => { return None; }
+                        &_ => { return Err("Invalid color passed".to_string()); }
                     }
                 })
             }
-            "fen" => { Some(Fen { peer: None }) }
+            "fen" => { Ok(Fen) }
             "move" => {
-                if parts.len() < 3 { return None; }
+                if parts.len() < 3 { return Err("Not enough parts passed for move".to_string()); }
                 let from: Vec<_> = parts.get(1).unwrap().chars().collect();
-                if from.len() != 2 { return None; }
+                if from.len() != 2 { return Err("Invalid 'from' position passed".to_string()); }
                 let to: Vec<_> = parts.get(1).unwrap().chars().collect();
-                if to.len() != 2 { return None; }
+                if to.len() != 2 { return Err("Invalid 'to' position passed".to_string()); }
 
                 let from = {
-                    if !from.get(0).unwrap().is_digit(10) { return None; }
-                    if !from.get(1).unwrap().is_digit(10) { return None; }
-                    Position::new(
-                        HorizontalPosition::try_from(
-                            from.get(0).unwrap().to_digit(10).unwrap() as u8
-                        ).unwrap(),
-                        VerticalPosition::try_from(
-                            from.get(1).unwrap().to_digit(10).unwrap() as u8
-                        ).unwrap()
-                    )
+                    if !from.get(0).unwrap().is_digit(10) { return Err("Invalid 'from' position passed".to_string()); }
+                    if !from.get(1).unwrap().is_digit(10) { return Err("Invalid 'from' position passed".to_string()); }
+
+                    let horizontal = if let Ok(position) = HorizontalPosition::try_from(
+                        from.get(0).unwrap().to_digit(10).unwrap() as u8
+                    ) { position } else { return Err("Invalid 'from' position passed".to_string()); };
+                    let vertical = if let Ok(position) = VerticalPosition::try_from(
+                        from.get(1).unwrap().to_digit(10).unwrap() as u8
+                    ) { position } else { return Err("Invalid 'from' position passed".to_string()); };
+
+                    Position::new(horizontal, vertical)
                 };
 
                 let to = {
-                    if !to.get(0).unwrap().is_digit(10) { return None; }
-                    if !to.get(1).unwrap().is_digit(10) { return None; }
-                    Position::new(
-                        HorizontalPosition::try_from(
-                            to.get(0).unwrap().to_digit(10).unwrap() as u8
-                        ).unwrap(),
-                        VerticalPosition::try_from(
-                            to.get(1).unwrap().to_digit(10).unwrap() as u8
-                        ).unwrap()
-                    )
+                    if !to.get(0).unwrap().is_digit(10) { return Err("Invalid 'to' position passed".to_string()); }
+                    if !to.get(1).unwrap().is_digit(10) { return Err("Invalid 'to' position passed".to_string()); }
+
+                    let horizontal = if let Ok(position) = HorizontalPosition::try_from(
+                        to.get(0).unwrap().to_digit(10).unwrap() as u8
+                    ) { position } else { return Err("Invalid 'to' position passed".to_string()); };
+                    let vertical = if let Ok(position) = VerticalPosition::try_from(
+                        to.get(1).unwrap().to_digit(10).unwrap() as u8
+                    ) { position } else { return Err("Invalid 'to' position passed".to_string()); };
+
+                    Position::new(horizontal, vertical)
                 };
 
-                Some(Move {from, to, peer: None })
+                Ok(Move {from, to})
             }
-            &_ => None
+            &_ => Err("Unknown command passed".to_string())
         }
     }
 }

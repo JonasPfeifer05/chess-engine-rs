@@ -5,12 +5,12 @@ use crate::game_board::position::Position;
 
 #[derive(Debug)]
 pub enum ClientCommand {
-    Join { code: String, peer: Option<SocketAddr> },
-    Leave { peer: Option<SocketAddr> },
+    Join { code: String },
+    Leave,
     New { fen: String },
     Killed { color: Color },
-    Fen { peer: Option<SocketAddr> },
-    Move { from: Position, to: Position, peer: Option<SocketAddr> }
+    Fen,
+    Move { from: Position, to: Position }
 }
 
 pub enum ServerCommand {
@@ -32,7 +32,7 @@ impl Display for ServerCommand {
                 f.write_str(&format!("Ok {code}"))
             }
             ServerCommand::OkPieceList { .. } => {
-                f.write_str("Ok TODO")
+                todo!();
             }
             ServerCommand::OkFen { fen } => {
                 f.write_str(&format!("Ok {fen}"))

@@ -29,7 +29,7 @@ impl ApplicationMap {
                 if &user.0 == peer { return Ok(entries.0.clone()); }
             }
         }
-        return Err("".to_string());
+        return Err("User is not assigned to any game".to_string());
     }
 
     pub fn remove_user(&mut self, code: &str, peer: &SocketAddr) {
