@@ -4,7 +4,7 @@ use std::iter::Map;
 use std::net::{SocketAddr, TcpStream};
 use std::thread::Scope;
 use rand::Rng;
-use crate::application::Game;
+use crate::game::Game;
 use crate::game_board::piece::Color;
 use crate::game_board::piece::Color::{Black, White};
 
@@ -23,6 +23,18 @@ impl Default for GameMap {
 }
 
 impl GameMap {
+    pub fn get_color_of_user(&self, code: &str, peer: &SocketAddr) -> Option<Color> {
+        if let Some(players) = self.code_to_players.get(code) {
+            Some(players.iter().find(|user| &user.0 == peer).unwrap().1.clone())
+        } else {
+            None
+        }
+    }
+
+    pub fn get_user_count(&self, code: &str) -> usize {
+        self.code_to_players.get(code).unwrap_or(&vec![]).len()
+    }
+
     pub fn get_code_to_user(&self, peer: &SocketAddr) -> Result<String, String> {
         for entries in self.code_to_players.iter() {
             for user in entries.1 {

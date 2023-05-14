@@ -23,9 +23,9 @@ impl Board {
     }
 
     /// Moves the piece from a position to another position, only if there is a piece on the initial position.
-    pub fn move_piece(&mut self, from: &Position, to: Position) {
+    pub fn move_piece(&mut self, from: &Position, to: &Position) {
         if let Some(piece) = self.position_to_piece.remove(from) {
-            self.position_to_piece.insert(to, piece);
+            self.position_to_piece.insert(to.clone(), piece);
         }
     }
 
@@ -87,6 +87,7 @@ impl BoardBuilder {
                     let mut piece = PieceRegistry::get(&symbol.to_ascii_lowercase()).expect("Error while parsing symbol to piece!");
                     if symbol.is_uppercase() { piece.set_color(Color::White) }
                     board.set_piece(Position::new(current_x, current_y as u8).unwrap(), piece);
+                    current_x+=1;
                 }
             }
         }

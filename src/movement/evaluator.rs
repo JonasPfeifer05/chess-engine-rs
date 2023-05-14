@@ -1,49 +1,44 @@
 use crate::game_board::board::Board;
-use crate::game_board::position::{Position};
+use crate::game_board::position::{Position, PositionBuilder};
 use crate::movement::movement::{Move};
 
 pub struct MoveEvaluator;
 
 impl MoveEvaluator {
     /// Filters out invalid moves and only returns valid ones
-    pub fn validate_moves<'a>(moves: &'a Vec<Move>, from: &Position, board: &Board) -> Vec<&'a Move> {
+    pub fn validate_moves(from: &Position, board: &Board) -> Vec<Position> {
         let figure = board.get_piece(from).unwrap();
 
-        let mut in_the_way = false;
-        let moves: Vec<_> = moves.iter()
-            .filter(|movee| {
-                let x = from.horizontal as u8 as i8 + movee.relative_move().0;
-                !(x < 0 || x > 8)
-            })
-            .filter(|movee| {
-                let y = from.vertical as u8 as i8 + movee.relative_move().1;
-                !(y < 0 || y > 8)
-            })
-            .filter(|movee| {
-                let x =  from.horizontal as i8 + movee.relative_move().0;
-                let y =  from.vertical as i8 + movee.relative_move().1;
+        let mut moves: Vec<Position> = Vec::new();
 
-                if let Some(piece) =  board.get_piece(&Position::new(x as u8,y as u8).unwrap()) {
-                    in_the_way = true;
-                }
+        for moveset in figure.movable().get_move_sets() {
+            for movee in moveset.get_relative_moves(figure.color()) {
+                match movee {
+                    Move::SingleMove { relative_move, can_kill, only_with_kill } => {
+                        let target = if let Ok(pos) = PositionBuilder::add(from, relative_move) { pos } else { continue };
 
-                if movee.check_in_way() {
-                    !in_the_way
-                } else {
-                    true
-                }
-            })
-            .filter(|movee| {
-                let x =  from.horizontal as i8 + movee.relative_move().0;
-                let y =  from.vertical as i8 + movee.relative_move().1;
+                        if let Some(piece) = board.get_piece(&target) {
+                            if piece.color() == figure.color() { continue; }
+                            else if !can_kill { continue; }
+                        } else if only_with_kill { continue; }
 
-                if let Some(piece) =  board.get_piece(&Position::new(x as u8,y as u8).unwrap()) {
-                    piece.color() != figure.color() && movee.can_kill()
-                } else {
-                    true && !movee.only_with_kill()
+                        moves.push(PositionBuilder::add(from, relative_move).unwrap());
+                    }
+                    Move::ChainedMove { relative_moves } => {
+                        for relative_move in relative_moves {
+                            let target = if let Ok(pos) = PositionBuilder::add(from, relative_move) { pos } else { break; };
+
+                            if let Some(piece) = board.get_piece(&target) {
+                                if piece.color() == figure.color() { break; }
+                                moves.push(PositionBuilder::add(from, relative_move).unwrap());
+                                break;
+                            }
+                            moves.push(PositionBuilder::add(from, relative_move).unwrap());
+                        }
+                    }
                 }
-            })
-            .collect();
+            }
+        }
 
         moves
     }

@@ -6,8 +6,6 @@ use std::sync::mpsc::Sender;
 use std::thread;
 use chess_engine_rs::csp::command::{ClientCommand, ServerCommand};
 use chess_engine_rs::csp::csp_parser::CSPParser;
-use chess_engine_rs::game_board::piece::{Bishop, King, Knight, Pawn, Piece, PieceRegistry, Queen, Rook};
-use chess_engine_rs::game_board::piece::Color::Black;
 use chess_engine_rs::networking::application_map::GameMap;
 
 fn handle_client(mut stream: TcpStream, request_tx: Sender<(Sender<ServerCommand>, (ClientCommand, SocketAddr))>) {
@@ -77,6 +75,7 @@ fn main() {
                 if &fen != "default" && application.load_fen(&fen).is_err() {
                     ServerCommand::Error { message: "Failed to load fen".to_string() }
                 } else {
+                    println!("{:?}", application);
                     ServerCommand::OkCode { code }
                 }
             }
@@ -86,6 +85,9 @@ fn main() {
                 if let Err(err) = add_result {
                     ServerCommand::Error { message: err }
                 } else {
+                    if application_map.get_user_count(&code) == 2 {
+                        application_map.get_application(&code).unwrap().state.start_game();
+                    }
                     ServerCommand::OkColor { color: add_result.unwrap() }
                 }
             }
@@ -94,7 +96,9 @@ fn main() {
                 if let Err(err) = code_result {
                     ServerCommand::Error { message: err }
                 } else {
-                    application_map.remove_user(&code_result.unwrap(), &peer);
+                    let code = code_result.unwrap();
+                    application_map.remove_user(&code, &peer);
+                    application_map.get_application(&code).unwrap().state.stop_game();
                     ServerCommand::Ok
                 }
             }
@@ -118,9 +122,10 @@ fn main() {
                     ServerCommand::Error { message: err }
                 } else {
                     let code = code_result.unwrap();
+                    let color = application_map.get_color_of_user(&code, &peer).unwrap();
                     let application = application_map.get_application(&code).unwrap();
 
-                    if let Err(err) = application.movee(&from, &to) {
+                    if let Err(err) = application.movee(&from, &to, &color) {
                         ServerCommand::Error { message: err }
                     } else {
                         ServerCommand::Ok

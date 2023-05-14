@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 use std::sync::RwLock;
 use dyn_clone::DynClone;
 use lazy_static::lazy_static;
-use crate::movement::movement::{DiagonalEightBottomLeft, DiagonalEightBottomRight, DiagonalEightTopLeft, DiagonalEightTopRight, DiagonalOneBottomLeft, DiagonalOneBottomRight, DiagonalOneTopLeft, DiagonalOneTopRight, HorizontalEightLeft, HorizontalEightRight, HorizontalOneLeft, HorizontalOneRight, KnightMove, MoveSet, PawnKill, PawnOne, PawnTwo, VerticalEightBottom, VerticalEightUp, VerticalOneBottom, VerticalOneUp};
+use crate::movement::movement::{DiagonalEight, DiagonalOne, HorizontalEight, HorizontalOne, KnightMoveSet, MoveSet, PawnKill, PawnOne, PawnTwo, VerticalEight, VerticalOne};
 
 #[derive(Clone)]
 /// A composition of the color of the piece and the movable associated with the piece
@@ -151,7 +151,7 @@ impl Movable for Pawn {
 
 impl Movable for Rook {
     fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>> {
-        vec![Box::new(HorizontalEightLeft), Box::new(HorizontalEightRight), Box::new(VerticalEightUp), Box::new(VerticalEightBottom)]
+        vec![Box::new(HorizontalEight), Box::new(VerticalEight)]
     }
 
     fn get_symbol(&self) -> char {
@@ -168,7 +168,7 @@ impl Movable for Rook {
 
 impl Movable for King {
     fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>> {
-        vec![Box::new(DiagonalOneTopLeft), Box::new(DiagonalOneTopRight), Box::new(DiagonalOneBottomLeft), Box::new(DiagonalOneBottomRight), Box::new(VerticalOneUp), Box::new(VerticalOneBottom), Box::new(HorizontalOneLeft), Box::new(HorizontalOneRight)]
+        vec![Box::new(DiagonalOne), Box::new(VerticalOne), Box::new(HorizontalOne)]
     }
 
     fn get_symbol(&self) -> char {
@@ -185,7 +185,7 @@ impl Movable for King {
 
 impl Movable for Queen {
     fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>> {
-        vec![Box::new(DiagonalEightTopLeft), Box::new(DiagonalEightTopRight), Box::new(DiagonalEightBottomLeft), Box::new(DiagonalEightBottomRight), Box::new(VerticalEightUp), Box::new(VerticalEightBottom), Box::new(HorizontalEightLeft), Box::new(HorizontalEightRight)]
+        vec![Box::new(DiagonalEight), Box::new(VerticalEight), Box::new(HorizontalEight)]
     }
 
     fn get_symbol(&self) -> char {
@@ -202,7 +202,7 @@ impl Movable for Queen {
 
 impl Movable for Bishop {
     fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>> {
-        vec![Box::new(DiagonalEightTopLeft), Box::new(DiagonalEightTopRight), Box::new(DiagonalEightBottomLeft), Box::new(DiagonalEightBottomRight)]
+        vec![Box::new(DiagonalEight)]
     }
 
     fn get_symbol(&self) -> char {
@@ -219,7 +219,7 @@ impl Movable for Bishop {
 
 impl Movable for Knight {
     fn get_move_sets(&self) -> Vec<Box<dyn MoveSet>> {
-        vec![Box::new(KnightMove)]
+        vec![Box::new(KnightMoveSet)]
     }
 
     fn get_symbol(&self) -> char {

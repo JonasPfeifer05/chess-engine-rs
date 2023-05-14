@@ -35,7 +35,7 @@ impl CSPParser {
                 if parts.len() < 3 { return Err("Not enough parts passed for move".to_string()); }
                 let from: Vec<_> = parts.get(1).unwrap().chars().collect();
                 if from.len() != 2 { return Err("Invalid 'from' position passed".to_string()); }
-                let to: Vec<_> = parts.get(1).unwrap().chars().collect();
+                let to: Vec<_> = parts.get(2).unwrap().chars().collect();
                 if to.len() != 2 { return Err("Invalid 'to' position passed".to_string()); }
 
                 let from_x = if let Some(x) = from.get(0).unwrap().to_digit(10) { x }

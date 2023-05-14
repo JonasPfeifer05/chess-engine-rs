@@ -3,39 +3,66 @@ use crate::game_board::piece::Color;
 use crate::game_state::game_state::{GameState, State};
 
 #[derive(Debug, Clone)]
-pub struct Move {
-    pub relative_move: (i8, i8),
-    can_kill: bool,
-    only_with_kill: bool,
-    check_in_way: bool,
+pub enum Move {
+    SingleMove {
+        relative_move: (i8,i8),
+        can_kill: bool,
+        only_with_kill: bool,
+    },
+    ChainedMove {
+        relative_moves: Vec<(i8,i8)>
+    }
 }
 
 impl Move {
-    pub fn new_basic(relative_move: (i8, i8)) -> Self {
-        Self {
+    pub fn new_single(relative_move: (i8, i8)) -> Self {
+        Self::SingleMove {
             relative_move,
             can_kill: true,
             only_with_kill: false,
-            check_in_way: true,
         }
     }
 
-    pub fn new_detailed(relative_move: (i8, i8), can_kill: bool, only_with_kill: bool, check_in_way: bool) -> Self {
-        Self { relative_move, can_kill, only_with_kill, check_in_way }
+    pub fn new_single_detailed(relative_move: (i8, i8), can_kill: bool, only_with_kill: bool) -> Self {
+        Self::SingleMove {
+            relative_move,
+            can_kill,
+            only_with_kill,
+        }
     }
 
-
-    pub fn relative_move(&self) -> (i8, i8) {
-        self.relative_move
+    pub fn new_chained(relative_moves: Vec<(i8, i8)>) -> Self {
+        Self::ChainedMove {
+            relative_moves,
+        }
     }
+
+    pub fn relative_move(&self) -> Vec<(i8, i8)> {
+        match self {
+            Move::SingleMove { relative_move, .. } => { vec![relative_move.clone()] }
+            Move::ChainedMove { relative_moves } => { relative_moves.clone() }
+        }
+    }
+
     pub fn can_kill(&self) -> bool {
-        self.can_kill
+        match self {
+            Move::SingleMove { can_kill, .. } => { *can_kill }
+            Move::ChainedMove { .. } => { true }
+        }
     }
+
     pub fn only_with_kill(&self) -> bool {
-        self.only_with_kill
+        match self {
+            Move::SingleMove { only_with_kill, .. } => { *only_with_kill }
+            Move::ChainedMove { .. } => { false }
+        }
     }
+
     pub fn check_in_way(&self) -> bool {
-        self.check_in_way
+        match self {
+            Move::SingleMove { .. } => { false }
+            Move::ChainedMove { .. } => { true }
+        }
     }
 }
 
@@ -47,197 +74,103 @@ pub trait MoveSet: DynClone {
 dyn_clone::clone_trait_object!(MoveSet);
 
 #[derive(Clone)]
-pub struct HorizontalOneLeft;
+pub struct HorizontalOne;
 
-impl MoveSet for HorizontalOneLeft {
+impl MoveSet for HorizontalOne {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        vec![Move::new_basic((-1, 0))]
+        vec![Move::new_single((-1,0)), Move::new_single((1,0))]
     }
 }
 
 #[derive(Clone)]
-pub struct HorizontalOneRight;
+pub struct VerticalOne;
 
-impl MoveSet for HorizontalOneRight {
+impl MoveSet for VerticalOne {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        vec![Move::new_basic((1, 0))]
+        vec![Move::new_single((0,-1)), Move::new_single((0,1))]
     }
 }
 
 #[derive(Clone)]
-pub struct VerticalOneUp;
+pub struct HorizontalEight;
 
-impl MoveSet for VerticalOneUp {
+impl MoveSet for HorizontalEight {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        vec![Move::new_basic((0, -1))]
-    }
-}
+        let mut chained_left = Vec::new();
+        let mut chained_right = Vec::new();
 
-#[derive(Clone)]
-pub struct VerticalOneBottom;
-
-impl MoveSet for VerticalOneBottom {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        vec![Move::new_basic((0, 1))]
-    }
-}
-
-#[derive(Clone)]
-pub struct HorizontalEightLeft;
-
-impl MoveSet for HorizontalEightLeft {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        let mut moves = Vec::new();
         for i in 1..8 {
-            moves.push(Move::new_basic((-i, 0)));
+            chained_left.push((-i,0));
+            chained_right.push((i,0));
         }
-        moves
+
+        vec![Move::new_chained(chained_left), Move::new_chained(chained_right)]
     }
 }
 
 #[derive(Clone)]
-pub struct HorizontalEightRight;
+pub struct VerticalEight;
 
-impl MoveSet for HorizontalEightRight {
+impl MoveSet for VerticalEight {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        let mut moves = Vec::new();
+        let mut chained_up = Vec::new();
+        let mut chained_down = Vec::new();
+
         for i in 1..8 {
-            moves.push(Move::new_basic((i, 0)));
+            chained_up.push((0, -i));
+            chained_down.push((0, i));
         }
-        moves
+
+        vec![Move::new_chained(chained_up), Move::new_chained(chained_down)]
     }
 }
 
 #[derive(Clone)]
-pub struct VerticalEightUp;
+pub struct DiagonalOne;
 
-impl MoveSet for VerticalEightUp {
+impl MoveSet for DiagonalOne {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        let mut moves = Vec::new();
+        vec![Move::new_single((1,1)),Move::new_single((1,-1)),Move::new_single((-1,1)),Move::new_single((-1,-1))]
+    }
+}
+
+#[derive(Clone)]
+pub struct DiagonalEight;
+
+impl MoveSet for DiagonalEight {
+    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
+        let mut chained_up_left = Vec::new();
+        let mut chained_up_right = Vec::new();
+        let mut chained_down_left = Vec::new();
+        let mut chained_down_right = Vec::new();
+
         for i in 1..8 {
-            moves.push(Move::new_basic((0, -i)));
+            chained_up_left.push((-i, -i));
+            chained_up_right.push((-i, i));
+            chained_down_left.push((i, -i));
+            chained_down_right.push((i, i));
         }
-        moves
+
+        vec![Move::new_chained(chained_up_left), Move::new_chained(chained_up_right),Move::new_chained(chained_down_left), Move::new_chained(chained_down_right)]
     }
 }
 
 #[derive(Clone)]
-pub struct VerticalEightBottom;
+pub struct KnightMoveSet;
 
-impl MoveSet for VerticalEightBottom {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        let mut moves = Vec::new();
-        for i in 1..8 {
-            moves.push(Move::new_basic((0, i)));
-        }
-        moves
-    }
-}
-
-#[derive(Clone)]
-pub struct DiagonalOneTopLeft;
-
-impl MoveSet for DiagonalOneTopLeft {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        vec![Move::new_basic((-1, -1))]
-    }
-}
-
-#[derive(Clone)]
-pub struct DiagonalOneTopRight;
-
-impl MoveSet for DiagonalOneTopRight {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        vec![Move::new_basic((1, -1))]
-    }
-}
-
-#[derive(Clone)]
-pub struct DiagonalOneBottomLeft;
-
-impl MoveSet for DiagonalOneBottomLeft {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        vec![Move::new_basic((-1, 1))]
-    }
-}
-
-#[derive(Clone)]
-pub struct DiagonalOneBottomRight;
-
-impl MoveSet for DiagonalOneBottomRight {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        vec![Move::new_basic((1, 1))]
-    }
-}
-
-#[derive(Clone)]
-pub struct DiagonalEightTopLeft;
-
-impl MoveSet for DiagonalEightTopLeft {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        let mut moves = Vec::new();
-        for i in 1..8 {
-            moves.push(Move::new_basic((-i, -i)))
-        }
-        moves
-    }
-}
-
-#[derive(Clone)]
-pub struct DiagonalEightTopRight;
-
-impl MoveSet for DiagonalEightTopRight {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        let mut moves = Vec::new();
-        for i in 1..8 {
-            moves.push(Move::new_basic((i, -i)))
-        }
-        moves
-    }
-}
-
-#[derive(Clone)]
-pub struct DiagonalEightBottomLeft;
-
-impl MoveSet for DiagonalEightBottomLeft {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        let mut moves = Vec::new();
-        for i in 1..8 {
-            moves.push(Move::new_basic((-i, i)))
-        }
-        moves
-    }
-}
-
-#[derive(Clone)]
-pub struct DiagonalEightBottomRight;
-
-impl MoveSet for DiagonalEightBottomRight {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
-        let mut moves = Vec::new();
-        for i in 1..8 {
-            moves.push(Move::new_basic((i, i)))
-        }
-        moves
-    }
-}
-
-#[derive(Clone)]
-pub struct KnightMove;
-
-impl MoveSet for KnightMove {
+impl MoveSet for KnightMoveSet {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
         let mut moves = Vec::new();
 
-        moves.push(Move::new_basic((1, 2)));
-        moves.push(Move::new_basic((1, -2)));
-        moves.push(Move::new_basic((-1, 2)));
-        moves.push(Move::new_basic((-1, -2)));
+        moves.push(Move::new_single((1, 2)));
+        moves.push(Move::new_single((1, -2)));
+        moves.push(Move::new_single((-1, 2)));
+        moves.push(Move::new_single((-1, -2)));
 
-        moves.push(Move::new_basic((2, 1)));
-        moves.push(Move::new_basic((2, -1)));
-        moves.push(Move::new_basic((-2, 1)));
-        moves.push(Move::new_basic((-2, -1)));
+        moves.push(Move::new_single((2, 1)));
+        moves.push(Move::new_single((2, -1)));
+        moves.push(Move::new_single((-2, 1)));
+        moves.push(Move::new_single((-2, -1)));
 
         moves
     }
@@ -249,9 +182,9 @@ pub struct PawnOne;
 impl MoveSet for PawnOne {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
         if color == &Color::White {
-            vec![Move::new_detailed((0, -1), false, false, true)]
+            vec![Move::new_single_detailed((0, -1), false, false)]
         } else {
-            vec![Move::new_detailed((0, 1), false, false, true)]
+            vec![Move::new_single_detailed((0, 1), false, false)]
         }
     }
 }
@@ -262,9 +195,9 @@ pub struct PawnTwo;
 impl MoveSet for PawnTwo {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
         if color == &Color::White {
-            vec![Move::new_detailed((0, -2), false, false, true)]
+            vec![Move::new_single_detailed((0, -2), false, false)]
         } else {
-            vec![Move::new_detailed((0, 2), false, false, true)]
+            vec![Move::new_single_detailed((0, 2), false, false)]
         }
     }
 }
@@ -275,9 +208,9 @@ pub struct PawnKill;
 impl MoveSet for PawnKill {
     fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
         if color == &Color::White {
-            vec![Move::new_detailed((1, -1), true, true, true), Move::new_detailed((-1, -1), true, true, true)]
+            vec![Move::new_single_detailed((1, -1), true, true), Move::new_single_detailed((-1, -1), true, true)]
         } else {
-            vec![Move::new_detailed((1, 1), true, true, true), Move::new_detailed((-1, 1), true, true, true)]
+            vec![Move::new_single_detailed((1, 1), true, true), Move::new_single_detailed((-1, 1), true, true)]
         }
     }
 }
