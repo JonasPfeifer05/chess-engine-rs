@@ -1,5 +1,5 @@
 use crate::csp::command::{ClientCommand, ServerCommand};
-use crate::game_board::board::{Board, BoardMemento};
+use crate::game_board::board::{Board, BoardBuilder, BoardMemento};
 use crate::game_board::position::Position;
 use crate::game_state::game_history::GameHistory;
 use crate::game_state::game_state::{GameState, State};
@@ -23,6 +23,12 @@ impl Default for Application {
 }
 
 impl Application {
+    pub fn load_fen(&mut self, fen: &str) -> Result<(),String> {
+        self.board = BoardBuilder::from_memento(&BoardMemento::new(fen.to_string()))?;
+
+        Ok(())
+    }
+
     pub fn fen(&self) -> String {
         BoardMemento::from_board(&self.board).fen_string().to_string()
     }

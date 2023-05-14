@@ -38,7 +38,7 @@ impl Board {
 impl Default for Board {
     /// Empty board
     fn default() -> Self {
-        BoardBuilder::from_memento(&BoardMemento::new("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR".to_string()))
+        BoardBuilder::from_memento(&BoardMemento::new("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR".to_string())).unwrap()
     }
 }
 
@@ -91,10 +91,14 @@ pub struct BoardBuilder;
 
 impl BoardBuilder {
     /// From FEM String
-    pub fn from_memento(memento: &BoardMemento) -> Board {
+    pub fn from_memento(memento: &BoardMemento) -> Result<Board, String> {
         let mut board = Board::new();
 
         let rows: Vec<_> = memento.fen_string.split('/').collect();
+
+        if rows.len() != 8 {
+            return Err("Did not get passed 8 rows".to_string())
+        }
 
         let vertical_positions: Vec<VerticalPosition> = VerticalPosition::get_list();
         let horizontal_positions: Vec<HorizontalPosition> = HorizontalPosition::get_list();
@@ -117,7 +121,7 @@ impl BoardBuilder {
             current_y += 1;
         }
 
-        board
+        Ok(board)
     }
 }
 

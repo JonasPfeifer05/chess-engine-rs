@@ -13,9 +13,9 @@ impl CSPParser {
         match parts.first().unwrap().as_str() {
             "join" => {
                 if parts.len() < 2 { return None; }
-                Some(Join { code: parts.get(1).unwrap().clone() })
+                Some(Join { code: parts.get(1).unwrap().clone(), peer: None })
             }
-            "leave" => { Some(Leave) }
+            "leave" => { Some(Leave { peer: None }) }
             "new" => {
                 if parts.len() < 2 { return None; }
                 Some(New { fen: parts.get(1).unwrap().clone() })
@@ -30,7 +30,7 @@ impl CSPParser {
                     }
                 })
             }
-            "fen" => { Some(Fen) }
+            "fen" => { Some(Fen { peer: None }) }
             "move" => {
                 if parts.len() < 3 { return None; }
                 let from: Vec<_> = parts.get(1).unwrap().chars().collect();
@@ -64,7 +64,7 @@ impl CSPParser {
                     )
                 };
 
-                Some(Move {from, to})
+                Some(Move {from, to, peer: None })
             }
             &_ => None
         }
