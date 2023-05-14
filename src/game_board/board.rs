@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 use crate::game_board::piece::{Color, Piece, PieceRegistry};
-use crate::game_board::position::{HorizontalPosition, Position, VerticalPosition};
+use crate::game_board::position::Position;
 
 /// Stores every piece currently on the board.
 /// Allows to manipulate the positions of pieces on the board without error checking.
@@ -46,9 +46,9 @@ impl Debug for Board {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut board = String::new();
 
-        for y in VerticalPosition::get_list() {
-            for x in HorizontalPosition::get_list() {
-                if let Some(piece) = self.position_to_piece.get(&Position::new(x,y)) {
+        for y in 0..8 {
+            for x in 0..8 {
+                if let Some(piece) = self.position_to_piece.get(&Position::new(x,y).unwrap()) {
                     let symbol = match piece.color() {
                         Color::White => {
                             match piece.movable().get_symbol() {
@@ -100,25 +100,18 @@ impl BoardBuilder {
             return Err("Did not get passed 8 rows".to_string())
         }
 
-        let vertical_positions: Vec<VerticalPosition> = VerticalPosition::get_list();
-        let horizontal_positions: Vec<HorizontalPosition> = HorizontalPosition::get_list();
-
-        let mut current_y: usize = 0;
-        let mut current_x: usize = 0;
-        for row in &rows[..8] {
-            for symbol in row.chars() {
-                // If its a digit, this means n empty fields, otherwise its a piece
+        for current_y in 0..8 {
+            let mut current_x: u8 = 0;
+            let chars: Vec<_> = rows[current_y].chars().collect();
+            for symbol in chars {
                 if let Some(count) = symbol.to_digit(10) {
-                    current_x += count as usize;
+                    current_x += count as u8;
                 } else {
                     let mut piece = PieceRegistry::get_from_symbol(&symbol.to_ascii_lowercase()).expect("Error while parsing symbol to piece!");
                     if symbol.is_uppercase() { piece.set_color(Color::White) }
-                    board.set_piece(Position::new(horizontal_positions[current_x], vertical_positions[current_y]), piece);
-                    current_x += 1;
+                    board.set_piece(Position::new(current_x, current_y as u8).unwrap(), piece);
                 }
             }
-            current_x = 0;
-            current_y += 1;
         }
 
         Ok(board)
@@ -139,9 +132,9 @@ impl BoardMemento {
 
         let mut empty_count: u8 = 0;
 
-        for y in VerticalPosition::get_list() {
-            for x in HorizontalPosition::get_list() {
-                let piece = board.get_piece(&Position::new(x, y));
+        for y in 0..8 {
+            for x in 0..8 {
+                let piece = board.get_piece(&Position::new(x, y).unwrap());
                 // Empty field
                 if piece.is_none() {
                     empty_count += 1;

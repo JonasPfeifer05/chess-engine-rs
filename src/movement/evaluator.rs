@@ -1,6 +1,6 @@
 use crate::game_board::board::Board;
-use crate::game_board::position::{HorizontalPosition, Position, VerticalPosition};
-use crate::movement::movement::{HorizontalOneRight, Move};
+use crate::game_board::position::{Position};
+use crate::movement::movement::{Move};
 
 pub struct MoveEvaluator;
 
@@ -20,10 +20,10 @@ impl MoveEvaluator {
                 !(y < 0 || y > 8)
             })
             .filter(|movee| {
-                let x =  HorizontalPosition::try_from((from.horizontal as u8 as i8 + movee.relative_move().0) as u8).unwrap();
-                let y =  VerticalPosition::try_from((from.vertical as u8 as i8 + movee.relative_move().1) as u8).unwrap();
+                let x =  from.horizontal as i8 + movee.relative_move().0;
+                let y =  from.vertical as i8 + movee.relative_move().1;
 
-                if let Some(piece) =  board.get_piece(&Position::new(x,y)) {
+                if let Some(piece) =  board.get_piece(&Position::new(x as u8,y as u8).unwrap()) {
                     in_the_way = true;
                 }
 
@@ -34,10 +34,10 @@ impl MoveEvaluator {
                 }
             })
             .filter(|movee| {
-                let x =  HorizontalPosition::try_from((from.horizontal as u8 as i8 + movee.relative_move().0) as u8).unwrap();
-                let y =  VerticalPosition::try_from((from.vertical as u8 as i8 + movee.relative_move().1) as u8).unwrap();
+                let x =  from.horizontal as i8 + movee.relative_move().0;
+                let y =  from.vertical as i8 + movee.relative_move().1;
 
-                if let Some(piece) =  board.get_piece(&Position::new(x,y)) {
+                if let Some(piece) =  board.get_piece(&Position::new(x as u8,y as u8).unwrap()) {
                     piece.color() != figure.color() && movee.can_kill()
                 } else {
                     true && !movee.only_with_kill()

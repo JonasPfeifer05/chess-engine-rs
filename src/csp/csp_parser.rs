@@ -1,7 +1,7 @@
 use crate::csp::command::ClientCommand;
 use crate::csp::command::ClientCommand::{Fen, Join, Killed, Leave, Move, New};
 use crate::game_board::piece::Color;
-use crate::game_board::position::{HorizontalPosition, Position, VerticalPosition};
+use crate::game_board::position::Position;
 
 pub struct CSPParser;
 
@@ -38,33 +38,19 @@ impl CSPParser {
                 let to: Vec<_> = parts.get(1).unwrap().chars().collect();
                 if to.len() != 2 { return Err("Invalid 'to' position passed".to_string()); }
 
-                let from = {
-                    if !from.get(0).unwrap().is_digit(10) { return Err("Invalid 'from' position passed".to_string()); }
-                    if !from.get(1).unwrap().is_digit(10) { return Err("Invalid 'from' position passed".to_string()); }
+                let from_x = if let Some(x) = from.get(0).unwrap().to_digit(10) { x }
+                else { return Err("Invalid 'from' position passed".to_string()); };
+                let from_y = if let Some(y) = from.get(1).unwrap().to_digit(10) { y }
+                else { return Err("Invalid 'from' position passed".to_string()); };
 
-                    let horizontal = if let Ok(position) = HorizontalPosition::try_from(
-                        from.get(0).unwrap().to_digit(10).unwrap() as u8
-                    ) { position } else { return Err("Invalid 'from' position passed".to_string()); };
-                    let vertical = if let Ok(position) = VerticalPosition::try_from(
-                        from.get(1).unwrap().to_digit(10).unwrap() as u8
-                    ) { position } else { return Err("Invalid 'from' position passed".to_string()); };
+                let from = Position::new(from_x as u8, from_y as u8)?;
 
-                    Position::new(horizontal, vertical)
-                };
+                let to_x = if let Some(x) = to.get(0).unwrap().to_digit(10) { x }
+                else { return Err("Invalid 'to' position passed".to_string()); };
+                let to_y = if let Some(y) = to.get(1).unwrap().to_digit(10) { y }
+                else { return Err("Invalid 'to' position passed".to_string()); };
 
-                let to = {
-                    if !to.get(0).unwrap().is_digit(10) { return Err("Invalid 'to' position passed".to_string()); }
-                    if !to.get(1).unwrap().is_digit(10) { return Err("Invalid 'to' position passed".to_string()); }
-
-                    let horizontal = if let Ok(position) = HorizontalPosition::try_from(
-                        to.get(0).unwrap().to_digit(10).unwrap() as u8
-                    ) { position } else { return Err("Invalid 'to' position passed".to_string()); };
-                    let vertical = if let Ok(position) = VerticalPosition::try_from(
-                        to.get(1).unwrap().to_digit(10).unwrap() as u8
-                    ) { position } else { return Err("Invalid 'to' position passed".to_string()); };
-
-                    Position::new(horizontal, vertical)
-                };
+                let to = Position::new(to_x as u8, to_y as u8)?;
 
                 Ok(Move {from, to})
             }
