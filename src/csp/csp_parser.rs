@@ -7,10 +7,10 @@ pub struct CSPParser;
 
 impl CSPParser {
     pub fn parse_client_command(command: &str) -> Result<ClientCommand, String> {
-        let parts: Vec<_> = command.trim().split(" ").map(|x| x.to_lowercase()).collect();
+        let parts: Vec<_> = command.trim().split(" ").map(|x| x.to_string()).collect();
         if parts.len() == 0 { return Err("No command passed".to_string()); }
 
-        match parts.first().unwrap().as_str() {
+        match parts.first().unwrap().to_lowercase().as_str() {
             "join" => {
                 if parts.len() < 2 { return Err("Not enough arguments passed for join".to_string()); }
                 Ok(Join { code: parts.get(1).unwrap().clone() })

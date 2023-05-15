@@ -71,6 +71,7 @@ impl BoardBuilder {
     pub fn from_memento(memento: &BoardMemento) -> Result<Board, String> {
         let mut board = Board::new();
 
+        println!("{}", memento.fen_string);
         let rows: Vec<_> = memento.fen_string.split('/').collect();
 
         if rows.len() != 8 {
@@ -113,6 +114,7 @@ impl BoardMemento {
         for y in 0..8 {
             for x in 0..8 {
                 let piece = board.get_piece(&Position::new(x, y).unwrap());
+                println!("{:?}", piece);
                 // Empty field
                 if piece.is_none() {
                     empty_count += 1;
@@ -129,6 +131,7 @@ impl BoardMemento {
                 if piece.color() == &Color::Black {
                     fen_string.push(piece.movable().get_symbol());
                 } else {
+                    println!("{}", piece.movable().get_symbol().to_uppercase().to_string());
                     fen_string.push_str(&piece.movable().get_symbol().to_uppercase().to_string());
                 }
             }

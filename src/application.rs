@@ -52,6 +52,7 @@ impl Application {
 
         let response = match command {
             ClientCommand::New { fen } => {
+                println!("{}", fen);
                 let code = self.game_map.new_game().unwrap();
                 let application = self.game_map.get_application(&code).unwrap();
                 if &fen != "default" && application.load_fen(&fen).is_err() {
@@ -93,6 +94,7 @@ impl Application {
                     ServerCommand::Error { message: err }
                 } else {
                     let fen = self.game_map.get_application(&code_result.unwrap()).unwrap().fen();
+                    println!("{}", fen);
                     ServerCommand::OkFen { fen }
                 }
             }
@@ -139,6 +141,7 @@ fn handle_client(mut stream: TcpStream, request_tx: Sender<(Sender<ServerCommand
             break;
         } else if let Ok(size) = size {
             let command = String::from_utf8_lossy(&command_buffer[0..size]).to_string();
+            println!("{}", command);
             let command = CSPParser::parse_client_command(&command);
 
             if let Err(mut err) = command {
