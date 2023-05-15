@@ -1,6 +1,5 @@
 use dyn_clone::DynClone;
 use crate::game_board::piece::Color;
-use crate::game_state::game_state::{GameState, State};
 
 #[derive(Debug, Clone)]
 pub enum Move {
@@ -77,7 +76,7 @@ dyn_clone::clone_trait_object!(MoveSet);
 pub struct HorizontalOne;
 
 impl MoveSet for HorizontalOne {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
+    fn get_relative_moves(&self, _color: &Color) -> Vec<Move> {
         vec![Move::new_single((-1,0)), Move::new_single((1,0))]
     }
 }
@@ -86,7 +85,7 @@ impl MoveSet for HorizontalOne {
 pub struct VerticalOne;
 
 impl MoveSet for VerticalOne {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
+    fn get_relative_moves(&self, _color: &Color) -> Vec<Move> {
         vec![Move::new_single((0,-1)), Move::new_single((0,1))]
     }
 }
@@ -95,7 +94,7 @@ impl MoveSet for VerticalOne {
 pub struct HorizontalEight;
 
 impl MoveSet for HorizontalEight {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
+    fn get_relative_moves(&self, _color: &Color) -> Vec<Move> {
         let mut chained_left = Vec::new();
         let mut chained_right = Vec::new();
 
@@ -112,7 +111,7 @@ impl MoveSet for HorizontalEight {
 pub struct VerticalEight;
 
 impl MoveSet for VerticalEight {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
+    fn get_relative_moves(&self, _color: &Color) -> Vec<Move> {
         let mut chained_up = Vec::new();
         let mut chained_down = Vec::new();
 
@@ -129,7 +128,7 @@ impl MoveSet for VerticalEight {
 pub struct DiagonalOne;
 
 impl MoveSet for DiagonalOne {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
+    fn get_relative_moves(&self, _color: &Color) -> Vec<Move> {
         vec![Move::new_single((1,1)),Move::new_single((1,-1)),Move::new_single((-1,1)),Move::new_single((-1,-1))]
     }
 }
@@ -138,7 +137,7 @@ impl MoveSet for DiagonalOne {
 pub struct DiagonalEight;
 
 impl MoveSet for DiagonalEight {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
+    fn get_relative_moves(&self, _color: &Color) -> Vec<Move> {
         let mut chained_up_left = Vec::new();
         let mut chained_up_right = Vec::new();
         let mut chained_down_left = Vec::new();
@@ -159,7 +158,7 @@ impl MoveSet for DiagonalEight {
 pub struct KnightMoveSet;
 
 impl MoveSet for KnightMoveSet {
-    fn get_relative_moves(&self, color: &Color) -> Vec<Move> {
+    fn get_relative_moves(&self, _color: &Color) -> Vec<Move> {
         let mut moves = Vec::new();
 
         moves.push(Move::new_single((1, 2)));

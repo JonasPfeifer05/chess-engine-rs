@@ -1,4 +1,3 @@
-use crate::csp::command::{ClientCommand, ServerCommand};
 use crate::game_board::board::{Board, BoardBuilder, BoardMemento};
 use crate::game_board::piece::Color;
 use crate::game_board::position::Position;
@@ -54,8 +53,6 @@ impl Game {
 
         self.board.move_piece(from, to);
         self.state.switch_color();
-
-        println!("{:?}", self.board);
 
         Ok(())
     }

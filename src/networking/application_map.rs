@@ -1,8 +1,5 @@
 use std::collections::HashMap;
-use std::hash::Hash;
-use std::iter::Map;
-use std::net::{SocketAddr, TcpStream};
-use std::thread::Scope;
+use std::net::{SocketAddr};
 use rand::Rng;
 use crate::game::Game;
 use crate::game_board::piece::Color;
@@ -72,26 +69,26 @@ impl GameMap {
             return Err("No game associated with that code!".to_string());
         };
 
-        if let Some(users) = self.code_to_players.get_mut(code) {
+        return if let Some(users) = self.code_to_players.get_mut(code) {
             if users.len() == 2 { return Err("There are already two players in that game!".to_string()); }
 
             if users.len() == 0 {
-                users.push((user, Color::White));
-                return Ok(White);
+                users.push((user, White));
+                Ok(White)
             } else {
                 match users.get(0).unwrap().1 {
-                    Color::White => {
-                        users.push((user, Color::Black));
-                        return Ok(Black);
+                    White => {
+                        users.push((user, Black));
+                        Ok(Black)
                     }
-                    Color::Black => {
-                        users.push((user, Color::White));
-                        return Ok(White);
+                    Black => {
+                        users.push((user, White));
+                        Ok(White)
                     }
                 }
             }
         } else {
-            return Err("Internal Server Error!".to_string());
+            Err("Internal Server Error!".to_string())
         }
     }
 }

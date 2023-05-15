@@ -1,5 +1,4 @@
-use std::fmt::{Debug, Display, format, Formatter, Write};
-use std::net::SocketAddr;
+use std::fmt::{Debug, Display, Formatter};
 use crate::game_board::piece::Color;
 use crate::game_board::position::Position;
 

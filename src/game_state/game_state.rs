@@ -1,5 +1,3 @@
-use std::sync::RwLock;
-use lazy_static::lazy_static;
 use crate::game_board::piece::Color;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
