@@ -126,7 +126,11 @@ impl BoardMemento {
                 }
 
                 let piece = piece.unwrap();
-                fen_string.push(piece.movable().get_symbol());
+                if piece.color() == &Color::Black {
+                    fen_string.push(piece.movable().get_symbol());
+                } else {
+                    fen_string.push_str(&piece.movable().get_symbol().to_uppercase().to_string());
+                }
             }
             // If the whole row is empty this is needed
             if empty_count != 0 { fen_string.push_str(&empty_count.to_string()); }

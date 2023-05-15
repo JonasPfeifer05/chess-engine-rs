@@ -48,7 +48,7 @@ impl GameMap {
     }
 
     pub fn new_game(&mut self) -> Result<String, String> {
-        let random = hex::encode(&rand::thread_rng().gen::<[u8; 16]>());
+        let random = hex::encode(&rand::thread_rng().gen::<[u8; 4]>());
 
         self.code_to_application.insert(random.clone(), Game::default());
         self.code_to_players.insert(random.clone(), Vec::new());
